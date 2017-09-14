@@ -29,31 +29,32 @@ def console():
 
 
     last_paste_txt = pyperclip.paste()
-    backoff = 0.25
+    backoff = 0.15
     cb_count = 0
     with open(args.filepath, "a") as fp:
 
+        print("Hello! Pasted text will be written to {}\n".format(args.filepath))
         fileno = fp.fileno()
 
-        while True:
-            time.sleep(backoff)
+        try:
+            while True:
+                time.sleep(backoff)
 
-            paste_txt = pyperclip.paste()
-            if paste_txt != last_paste_txt:
-                cb_count += 1
-                print("{}. {}".format(cb_count, paste_txt))
+                paste_txt = pyperclip.paste()
+                if paste_txt != last_paste_txt:
+                    if paste_txt and not paste_txt.isspace():
+                        cb_count += 1
+                        print("{}. {}".format(cb_count, paste_txt))
 
-                fp.write(paste_txt)
-                fp.write("\n")
-                fp.flush()
-                os.fsync(fileno)
+                        fp.write(paste_txt)
+                        fp.write("\n")
+                        fp.flush()
+                        os.fsync(fileno)
 
-                last_paste_txt = paste_txt
-                backoff = 0.25
+                        last_paste_txt = paste_txt
 
-            else:
-                backoff = 0.25
-                #backoff = min(backoff + 1, 60)
+        except KeyboardInterrupt:
+            print("\nGoodbye! Pasted text was written to {}".format(args.filepath))
 
     return 0
 
