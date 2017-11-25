@@ -1,15 +1,17 @@
-from __future__ import print_function
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals, division, print_function, absolute_import
 import sys
 import os
 import argparse
 import tempfile
 import datetime
 import time
+import codecs
 
 import pyperclip
 
 
-__version__ = "0.1"
+__version__ = "0.1.1"
 
 
 def console():
@@ -22,16 +24,21 @@ def console():
     parser = argparse.ArgumentParser(description='Listen to the system clipboard and write out new contents to file')
     parser.add_argument('filepath', nargs="?", default=default_f, help='File where clipboard contents will be written')
     #parser.add_argument('--clean', action='store_true', help='If Passed in, paste with no metadata')
-
+    parser.add_argument(
+        '--delim', '-d', '--postfix', '-p',
+        dest="delim",
+        default="\n",
+        type=lambda x: x.decode('string_escape'),
+        help='will be added to the end of the pasted text'
+    )
     parser.add_argument("--version", "-V", action='version', version="%(prog)s {}".format(__version__))
 
     args = parser.parse_args()
-
-
+    delim = args.delim
     last_paste_txt = pyperclip.paste()
     backoff = 0.15
     cb_count = 0
-    with open(args.filepath, "a") as fp:
+    with codecs.open(args.filepath, encoding='utf-8', mode='a') as fp:
 
         print("Hello! Pasted text will be written to {}\n".format(args.filepath))
         fileno = fp.fileno()
@@ -47,7 +54,7 @@ def console():
                         print("{}. {}".format(cb_count, paste_txt))
 
                         fp.write(paste_txt)
-                        fp.write("\n")
+                        fp.write(delim)
                         fp.flush()
                         os.fsync(fileno)
 
