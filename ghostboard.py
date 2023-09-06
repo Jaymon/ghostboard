@@ -28,7 +28,7 @@ def console():
         '--delim', '-d', '--postfix', '-p',
         dest="delim",
         default="\n",
-        type=lambda x: x.decode('string_escape'),
+        type=lambda x: x.decode('string_escape') if not isinstance(x, str) else x,
         help='will be added to the end of the pasted text'
     )
     parser.add_argument("--version", "-V", action='version', version="%(prog)s {}".format(__version__))
